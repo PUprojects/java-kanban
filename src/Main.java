@@ -1,6 +1,56 @@
+import model.Epic;
+import model.SubTask;
+import model.Task;
+import model.TaskStatus;
+import service.TaskManager;
+
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Поехали!");
+        TaskManager taskManager = new TaskManager();
+        Task simpleTask = taskManager.create(new Task("Задача номер 1", "Простая задача", TaskStatus.NEW));
+        System.out.println("Создана задача: " + simpleTask);
+        simpleTask = taskManager.create(new Task("Задача номер 2", "Ещё простая задача", TaskStatus.NEW));
+        System.out.println("Создана задача: " + simpleTask);
+
+        Epic epic = taskManager.createEpic(new Epic("Эпик номер 1", "Первый эпик"));
+        System.out.println("Создан эпик: " + epic);
+
+        SubTask sub1 = taskManager.createSubTask(new SubTask(taskManager.getEpic(epic.getId()), "Первая подзадача",
+                "Описание первой подзадачи", TaskStatus.NEW));
+        System.out.println("Создана подзадача: " + sub1);
+        System.out.println("Состояние эпика: " + epic);
+
+        SubTask sub2 = taskManager.createSubTask(new SubTask(taskManager.getEpic(epic.getId()), "Вторая подзадача",
+                "Описание второй подзадачи", TaskStatus.NEW));
+        System.out.println("Создана подзадача: " + sub2);
+        System.out.println("Состояние эпика: " + epic);
+
+        sub2 = taskManager.updateSubTask(new SubTask(taskManager.getEpic(epic.getId()), sub2.getId(), "Вторая подзадача",
+                "Описание второй подзадачи", TaskStatus.IN_PROGRESS));
+
+        System.out.println("Обновлена подзадача: " + sub2);
+        System.out.println("Состояние эпика: " + epic);
+
+        taskManager.updateSubTask(new SubTask(taskManager.getEpic(epic.getId()), sub1.getId(), "Вторая подзадача",
+                "Описание второй подзадачи", TaskStatus.DONE));
+        taskManager.updateSubTask(new SubTask(taskManager.getEpic(epic.getId()), sub2.getId(), "Вторая подзадача",
+                "Описание второй подзадачи", TaskStatus.DONE));
+
+        epic = taskManager.updateEpic(new Epic(epic.getId(), "Просто эпик", "Обновлённые данные", TaskStatus.NEW));
+
+        System.out.println("Состояние эпика после обновлений: " + epic);
+
+        sub1 = taskManager.deleteSubTask(sub1.getId());
+        System.out.println("Задача удалена:" + sub1);
+        System.out.println("Состояние эпика: " + epic);
+
+        Epic epic2 = taskManager.createEpic(new Epic("Эпик номер 2", "Второй эпик"));
+        System.out.println("Создан эпик: " + epic2);
+
+        taskManager.createSubTask(new SubTask(taskManager.getEpic(epic2.getId()), "Подзадача для второго эпика",
+                "Описание подзадачи", TaskStatus.IN_PROGRESS));
+        System.out.println("Состояние эпика2: " + epic2);
     }
+
 }
