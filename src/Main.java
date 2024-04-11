@@ -26,18 +26,28 @@ public class Main {
         System.out.println("Создана подзадача: " + sub2);
         System.out.println("Состояние эпика: " + epic);
 
-        sub2 = taskManager.updateSubTask(new SubTask(taskManager.getEpic(epic.getId()), sub2.getId(), "Вторая подзадача",
-                "Описание второй подзадачи", TaskStatus.IN_PROGRESS));
+        SubTask subNew = new SubTask(taskManager.getEpic(epic.getId()), "Вторая подзадача",
+                "Описание второй подзадачи", TaskStatus.IN_PROGRESS);
+        subNew.setId(sub2.getId());
+        sub2 = taskManager.updateSubTask(subNew);
 
         System.out.println("Обновлена подзадача: " + sub2);
         System.out.println("Состояние эпика: " + epic);
 
-        taskManager.updateSubTask(new SubTask(taskManager.getEpic(epic.getId()), sub1.getId(), "Вторая подзадача",
-                "Описание второй подзадачи", TaskStatus.DONE));
-        taskManager.updateSubTask(new SubTask(taskManager.getEpic(epic.getId()), sub2.getId(), "Вторая подзадача",
-                "Описание второй подзадачи", TaskStatus.DONE));
+        subNew = new SubTask(taskManager.getEpic(epic.getId()), "Вторая подзадача",
+                "Описание второй подзадачи", TaskStatus.DONE);
+        subNew.setId(sub2.getId());
+        taskManager.updateSubTask(subNew);
 
-        epic = taskManager.updateEpic(new Epic(epic.getId(), "Просто эпик", "Обновлённые данные", TaskStatus.NEW));
+        subNew = new SubTask(taskManager.getEpic(epic.getId()), "Первая подзадача",
+                "Описание первой подзадачи", TaskStatus.DONE);
+        subNew.setId(sub1.getId());
+        sub1 = taskManager.updateSubTask(subNew);
+
+        Epic epicNew = new Epic("Просто эпик", "Обновлённые данные");
+        epicNew.setId(epic.getId());
+
+        epic = taskManager.updateEpic(epicNew);
 
         System.out.println("Состояние эпика после обновлений: " + epic);
 
