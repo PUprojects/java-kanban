@@ -105,28 +105,16 @@ public class TaskManager {
         return subTask;
     }
 
-    public HashMap<Integer, Task> getTasks() {
-        HashMap<Integer, Task> tasksClone = new HashMap<>();
-        for (Task task : tasks.values()) {
-            tasksClone.put(task.getId(), task);
-        }
-        return tasksClone;
+    public List<Task> getTasks() {
+        return new ArrayList<>(tasks.values());
     }
 
-    public HashMap<Integer, Epic> getEpics() {
-        HashMap<Integer, Epic> epicsClone = new HashMap<>();
-        for (Epic epic : epics.values()) {
-            epicsClone.put(epic.getId(), epic);
-        }
-        return epicsClone;
+    public List<Epic> getEpics() {
+        return new ArrayList<>(epics.values());
     }
 
-    public HashMap<Integer, SubTask> getSubTasks() {
-        HashMap<Integer, SubTask> subTasksClone = new HashMap<>();
-        for (SubTask subTask : subTasks.values()) {
-            subTasksClone.put(subTask.getId(), subTask);
-        }
-        return subTasksClone;
+    public List<SubTask> getSubTasks() {
+        return new ArrayList<>(subTasks.values());
     }
 
     public List<SubTask> getEpicSubTasks(int id) {
