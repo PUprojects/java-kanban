@@ -3,8 +3,8 @@ package model;
 public class SubTask extends Task {
     private final Epic epic;
 
-    public SubTask(Epic epic, String name, String description) {
-        super(name, description);
+    public SubTask(Epic epic, String name, String description, TaskStatus status) {
+        super(name, description, status);
 
         this.epic = epic;
     }
