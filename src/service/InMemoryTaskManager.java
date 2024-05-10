@@ -198,7 +198,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void updateEpicStatus(Epic epic) {
-        if(epic == null)
+        if (epic == null)
             return;
 
         List<Integer> subTasksIds = epic.getSubTasksIds();
@@ -240,7 +240,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public SubTask addSubTaskToEpic(Epic epic, SubTask subTask) {
-        if(epic == null)
+        if (epic == null)
             return null;
         List<Integer> subTaskIds = epic.getSubTasksIds();
         Integer subTaskId = subTask.getId();
@@ -251,7 +251,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getHistory(){
+    public List<Task> getHistory() {
         return historyManager.getHistory();
     }
 }
