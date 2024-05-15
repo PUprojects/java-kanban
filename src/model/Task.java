@@ -6,11 +6,12 @@ public class Task {
     protected int id;
     protected String name;
     protected String description;
-    protected TaskStatus taskStatus = TaskStatus.NEW;
+    protected TaskStatus taskStatus;
 
-    public Task(String name, String description) {
+    public Task(String name, String description, TaskStatus taskStatus) {
         this.name = name;
         this.description = description;
+        this.taskStatus = taskStatus;
     }
 
     @Override
