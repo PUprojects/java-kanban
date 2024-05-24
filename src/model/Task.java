@@ -68,4 +68,17 @@ public class Task {
     public void setTaskStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
     }
+
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
+    public Integer getEpicId() {
+        return 0;
+    }
+
+    public boolean compareAllFields(Task task) {
+        return (id == task.id) && (name.equals(task.name)) && (description.equals(task.description)) &&
+                (taskStatus == task.taskStatus) && (getType() == task.getType());
+    }
 }

@@ -17,17 +17,17 @@ public class Main {
         Epic epic = taskManager.createEpic(new Epic("Эпик номер 1", "Первый эпик"));
         System.out.println("Создан эпик: " + epic);
 
-        SubTask sub1 = taskManager.createSubTask(new SubTask(taskManager.getEpic(epic.getId()), "Первая подзадача",
+        SubTask sub1 = taskManager.createSubTask(new SubTask(epic.getId(), "Первая подзадача",
                 "Описание первой подзадачи", TaskStatus.NEW));
         System.out.println("Создана подзадача: " + sub1);
         System.out.println("Состояние эпика: " + epic);
 
-        SubTask sub2 = taskManager.createSubTask(new SubTask(taskManager.getEpic(epic.getId()), "Вторая подзадача",
+        SubTask sub2 = taskManager.createSubTask(new SubTask(epic.getId(), "Вторая подзадача",
                 "Описание второй подзадачи", TaskStatus.NEW));
         System.out.println("Создана подзадача: " + sub2);
         System.out.println("Состояние эпика: " + epic);
 
-        SubTask subNew = new SubTask(taskManager.getEpic(epic.getId()), "Вторая подзадача",
+        SubTask subNew = new SubTask(epic.getId(), "Вторая подзадача",
                 "Описание второй подзадачи", TaskStatus.IN_PROGRESS);
         subNew.setId(sub2.getId());
         sub2 = taskManager.updateSubTask(subNew);
@@ -35,12 +35,12 @@ public class Main {
         System.out.println("Обновлена подзадача: " + sub2);
         System.out.println("Состояние эпика: " + epic);
 
-        subNew = new SubTask(taskManager.getEpic(epic.getId()), "Вторая подзадача",
+        subNew = new SubTask(epic.getId(), "Вторая подзадача",
                 "Описание второй подзадачи", TaskStatus.DONE);
         subNew.setId(sub2.getId());
         taskManager.updateSubTask(subNew);
 
-        subNew = new SubTask(taskManager.getEpic(epic.getId()), "Первая подзадача",
+        subNew = new SubTask(epic.getId(), "Первая подзадача",
                 "Описание первой подзадачи", TaskStatus.DONE);
 
         subNew.setId(sub1.getId());
@@ -60,7 +60,7 @@ public class Main {
         Epic epic2 = taskManager.createEpic(new Epic("Эпик номер 2", "Второй эпик"));
         System.out.println("Создан эпик: " + epic2);
 
-        subNew = new SubTask(taskManager.getEpic(epic2.getId()), "Подзадача для второго эпика",
+        subNew = new SubTask(epic2.getId(), "Подзадача для второго эпика",
                 "Описание подзадачи", TaskStatus.IN_PROGRESS);
 
         taskManager.createSubTask(subNew);

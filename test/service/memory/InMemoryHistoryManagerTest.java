@@ -1,4 +1,4 @@
-package service;
+package service.memory;
 
 import model.Epic;
 import model.SubTask;
@@ -6,6 +6,7 @@ import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.memory.InMemoryHistoryManager;
 
 import java.util.List;
 
@@ -24,12 +25,15 @@ class InMemoryHistoryManagerTest {
         task = new Task("Task", "Desc", TaskStatus.NEW);
         task.setId(1);
     }
+
     @Test
     void shouldAddAnyTasksInHistory() {
         Epic epic = new Epic("Epic", "Desc");
-        SubTask subTask = new SubTask(epic, "SubTask", "Desc", TaskStatus.NEW);
-
         epic.setId(2);
+
+        SubTask subTask = new SubTask(2, "SubTask", "Desc", TaskStatus.NEW);
+
+
         subTask.setId(3);
 
         historyManager.add(task);
@@ -46,7 +50,7 @@ class InMemoryHistoryManagerTest {
     void shouldNotChangeTaskData() {
         historyManager.add(task);
 
-        Task taskFromHistory = historyManager.getHistory().getFirst();
+        Task taskFromHistory = historyManager.getHistory().get(0);
 
         assertEquals(task, taskFromHistory);
         assertEquals(task.getName(), taskFromHistory.getName());
@@ -131,6 +135,4 @@ class InMemoryHistoryManagerTest {
         assertEquals(task3, historyFromManager.get(0), "Не верная история в начале списка");
         assertEquals(task2, historyFromManager.get(1), "Не верная история в конце списка");
     }
-
-
 }
