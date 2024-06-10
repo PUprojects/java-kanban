@@ -1,4 +1,4 @@
-package service;
+package service.memory;
 
 import model.Epic;
 import model.SubTask;
@@ -75,9 +75,12 @@ class InMemoryTaskManagerTest {
         final Epic epic1 = new Epic("Epic1", "Desc");
         final Epic epic2 = new Epic("Epic2", "Desc");
 
-        final SubTask subTask1 = new SubTask(epic1, "Sub1","Desc1", TaskStatus.NEW);
-        final SubTask subTask2 = new SubTask(epic1, "Sub2","Desc2", TaskStatus.NEW);
-        final SubTask subTask3 = new SubTask(epic2, "Sub3","Desc3", TaskStatus.NEW);
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(1, "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(1, "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(2, "Sub3", "Desc3", TaskStatus.NEW);
 
         final SubTask savedSubtask1 = taskManager.createSubTask(subTask1);
         final SubTask savedSubtask2 = taskManager.createSubTask(subTask2);
@@ -115,23 +118,23 @@ class InMemoryTaskManagerTest {
 
         assertEquals(epic1SubTakIds.get(0), subTask1.getId());
         assertEquals(epic1SubTakIds.get(1), subTask2.getId());
-        assertEquals(epic2SubTakIds.getFirst(), subTask3.getId());
+        assertEquals(epic2SubTakIds.get(0), subTask3.getId());
     }
 
     @Test
     void shouldAddInHistoryWhenCallGetById() {
         Task task = new Task("Task", "Desc", TaskStatus.NEW);
         Epic epic = new Epic("Epic", "Desc");
-        SubTask subTask = new SubTask(epic, "SubTask", "Desc", TaskStatus.NEW);
 
         taskManager.create(task);
         taskManager.createEpic(epic);
+        SubTask subTask = new SubTask(epic.getId(), "SubTask", "Desc", TaskStatus.NEW);
         taskManager.createSubTask(subTask);
 
         List<Task> history = taskManager.getHistory();
 
         assertNotNull(history);
-        assertEquals(history.size(), 0);
+        assertEquals(0, history.size());
 
         taskManager.get(1);
         taskManager.getEpic(2);
@@ -196,8 +199,10 @@ class InMemoryTaskManagerTest {
     void shouldUpdateSubTask() {
         final Epic epic1 = new Epic("Epic1", "Desc");
 
-        final SubTask subTask1 = new SubTask(epic1, "Sub1","Desc1", TaskStatus.NEW);
-        final SubTask subTask2 = new SubTask(null, "Sub3","Desc3", TaskStatus.DONE);
+        taskManager.createEpic(epic1);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(0, "Sub3", "Desc3", TaskStatus.DONE);
 
         taskManager.createSubTask(subTask1);
         subTask2.setId(subTask1.getId());
@@ -218,16 +223,16 @@ class InMemoryTaskManagerTest {
 
         assertEquals(epic1.getTaskStatus(), TaskStatus.NEW);
 
-        final SubTask subTask1 = new SubTask(epic1, "Sub1","Desc1", TaskStatus.NEW);
-        final SubTask subTask2 = new SubTask(epic1, "Sub2","Desc2", TaskStatus.NEW);
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
 
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
 
         assertEquals(epic1.getTaskStatus(), TaskStatus.NEW);
 
-        SubTask newSubTask1 = new SubTask(null, "Sub1", "Desc1", TaskStatus.IN_PROGRESS);
-        SubTask newSubTask2 = new SubTask(null, "Sub1", "Desc1", TaskStatus.DONE);
+        SubTask newSubTask1 = new SubTask(0, "Sub1", "Desc1", TaskStatus.IN_PROGRESS);
+        SubTask newSubTask2 = new SubTask(0, "Sub1", "Desc1", TaskStatus.DONE);
         newSubTask1.setId(subTask1.getId());
         newSubTask2.setId(subTask2.getId());
 
@@ -257,7 +262,7 @@ class InMemoryTaskManagerTest {
         final List<Task> tasks = taskManager.getTasks();
 
         assertEquals(tasks.size(), 1);
-        assertEquals(tasks.getFirst(), task2);
+        assertEquals(tasks.get(0), task2);
     }
 
     @Test
@@ -265,12 +270,12 @@ class InMemoryTaskManagerTest {
         final Epic epic1 = new Epic("Epic1", "Desc");
         final Epic epic2 = new Epic("Epic2", "Desc");
 
-        final SubTask subTask1 = new SubTask(epic1, "Sub1","Desc1", TaskStatus.NEW);
-        final SubTask subTask2 = new SubTask(epic1, "Sub2","Desc2", TaskStatus.NEW);
-        final SubTask subTask3 = new SubTask(epic2, "Sub3","Desc3", TaskStatus.NEW);
-
         taskManager.createEpic(epic1);
         taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(epic2.getId(), "Sub3", "Desc3", TaskStatus.NEW);
 
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
@@ -283,7 +288,7 @@ class InMemoryTaskManagerTest {
 
         List<Epic> epics = taskManager.getEpics();
         assertEquals(epics.size(), 1);
-        assertEquals(epics.getFirst(), epic2);
+        assertEquals(epics.get(0), epic2);
         assertEquals(taskManager.getSubtasks().size(), 1);
     }
 
@@ -292,12 +297,12 @@ class InMemoryTaskManagerTest {
         final Epic epic1 = new Epic("Epic1", "Desc");
         final Epic epic2 = new Epic("Epic2", "Desc");
 
-        final SubTask subTask1 = new SubTask(epic1, "Sub1","Desc1", TaskStatus.NEW);
-        final SubTask subTask2 = new SubTask(epic1, "Sub2","Desc2", TaskStatus.NEW);
-        final SubTask subTask3 = new SubTask(epic2, "Sub3","Desc3", TaskStatus.NEW);
-
         taskManager.createEpic(epic1);
         taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(epic2.getId(), "Sub3", "Desc3", TaskStatus.NEW);
 
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
@@ -338,12 +343,12 @@ class InMemoryTaskManagerTest {
         final Epic epic1 = new Epic("Epic1", "Desc");
         final Epic epic2 = new Epic("Epic2", "Desc");
 
-        final SubTask subTask1 = new SubTask(epic1, "Sub1","Desc1", TaskStatus.NEW);
-        final SubTask subTask2 = new SubTask(epic1, "Sub2","Desc2", TaskStatus.NEW);
-        final SubTask subTask3 = new SubTask(epic2, "Sub3","Desc3", TaskStatus.NEW);
-
         taskManager.createEpic(epic1);
         taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(epic2.getId(), "Sub3", "Desc3", TaskStatus.NEW);
 
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
@@ -363,12 +368,12 @@ class InMemoryTaskManagerTest {
         final Epic epic1 = new Epic("Epic1", "Desc");
         final Epic epic2 = new Epic("Epic2", "Desc");
 
-        final SubTask subTask1 = new SubTask(epic1, "Sub1","Desc1", TaskStatus.NEW);
-        final SubTask subTask2 = new SubTask(epic1, "Sub2","Desc2", TaskStatus.NEW);
-        final SubTask subTask3 = new SubTask(epic2, "Sub3","Desc3", TaskStatus.NEW);
-
         taskManager.createEpic(epic1);
         taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(epic2.getId(), "Sub3", "Desc3", TaskStatus.NEW);
 
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
@@ -392,12 +397,12 @@ class InMemoryTaskManagerTest {
         final Epic epic1 = new Epic("Epic1", "Desc");
         final Epic epic2 = new Epic("Epic2", "Desc");
 
-        final SubTask subTask1 = new SubTask(epic1, "Sub1","Desc1", TaskStatus.NEW);
-        final SubTask subTask2 = new SubTask(epic1, "Sub2","Desc2", TaskStatus.NEW);
-        final SubTask subTask3 = new SubTask(epic2, "Sub3","Desc3", TaskStatus.NEW);
-
         taskManager.createEpic(epic1);
         taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(epic2.getId(), "Sub3", "Desc3", TaskStatus.NEW);
 
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
@@ -412,7 +417,7 @@ class InMemoryTaskManagerTest {
         assertEquals(taskManager.getEpicSubtasks(1).size(), 1);
         assertEquals(taskManager.getEpicSubtasks(2).size(), 1);
 
-        assertEquals(taskManager.getEpicSubtasks(epic1.getId()).getFirst(), subTask2);
+        assertEquals(taskManager.getEpicSubtasks(epic1.getId()).get(0), subTask2);
 
         taskManager.removeAllSubtasksFromEpic(epic2);
         assertEquals(taskManager.getEpicSubtasks(1).size(), 1);
@@ -425,14 +430,16 @@ class InMemoryTaskManagerTest {
         Task task2 = new Task("Task2", "Desc", TaskStatus.NEW);
         Epic epic1 = new Epic("Epic1", "Desc");
         Epic epic2 = new Epic("Epic2", "Desc");
-        SubTask subTask1 = new SubTask(epic1, "SubTask1", "Desc", TaskStatus.NEW);
-        SubTask subTask2 = new SubTask(epic1, "SubTask2", "Desc", TaskStatus.NEW);
-        SubTask subTask3 = new SubTask(epic1, "SubTask3", "Desc", TaskStatus.NEW);
+
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(epic2.getId(), "Sub3", "Desc3", TaskStatus.NEW);
 
         taskManager.create(task1);
         taskManager.create(task2);
-        taskManager.createEpic(epic1);
-        taskManager.createEpic(epic2);
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
         taskManager.createSubTask(subTask3);
@@ -471,14 +478,16 @@ class InMemoryTaskManagerTest {
         Task task2 = new Task("Task2", "Desc", TaskStatus.NEW);
         Epic epic1 = new Epic("Epic1", "Desc");
         Epic epic2 = new Epic("Epic2", "Desc");
-        SubTask subTask1 = new SubTask(epic1, "SubTask1", "Desc", TaskStatus.NEW);
-        SubTask subTask2 = new SubTask(epic1, "SubTask2", "Desc", TaskStatus.NEW);
-        SubTask subTask3 = new SubTask(epic1, "SubTask3", "Desc", TaskStatus.NEW);
+
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(epic2.getId(), "Sub3", "Desc3", TaskStatus.NEW);
 
         taskManager.create(task1);
         taskManager.create(task2);
-        taskManager.createEpic(epic1);
-        taskManager.createEpic(epic2);
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
         taskManager.createSubTask(subTask3);
@@ -505,17 +514,19 @@ class InMemoryTaskManagerTest {
         Task task2 = new Task("Task2", "Desc", TaskStatus.NEW);
         Epic epic1 = new Epic("Epic1", "Desc");
         Epic epic2 = new Epic("Epic2", "Desc");
-        SubTask subTask1 = new SubTask(epic1, "SubTask1", "Desc", TaskStatus.NEW);
-        SubTask subTask2 = new SubTask(epic1, "SubTask2", "Desc", TaskStatus.NEW);
-        SubTask subTask3 = new SubTask(epic1, "SubTask3", "Desc", TaskStatus.NEW);
+
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
+
+        final SubTask subTask1 = new SubTask(epic1.getId(), "Sub1", "Desc1", TaskStatus.NEW);
+        final SubTask subTask2 = new SubTask(epic1.getId(), "Sub2", "Desc2", TaskStatus.NEW);
+        final SubTask subTask3 = new SubTask(epic2.getId(), "Sub3", "Desc3", TaskStatus.NEW);
 
         taskManager.create(task1);
         taskManager.create(task2);
-        taskManager.createEpic(epic1);
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
         taskManager.createSubTask(subTask3);
-        taskManager.createEpic(epic2);
 
         taskManager.get(task1.getId());
         taskManager.get(task2.getId());
@@ -529,7 +540,7 @@ class InMemoryTaskManagerTest {
 
         List<Task> history = taskManager.getHistory();
 
-        assertEquals(3, history.size(), "Размер истории должен быть равен 3 после удаления");
-        assertEquals(history, List.of(task1, task2, epic2), "epic1, subTask1, subTask2, subTask3 не должно быть в списке");
+        assertEquals(4, history.size(), "Размер истории должен быть равен 4 после удаления");
+        assertEquals(List.of(task1, task2, epic2, subTask3), history, "epic1, subTask1, subTask2, subTask3 не должно быть в списке");
     }
 }

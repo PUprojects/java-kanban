@@ -24,4 +24,9 @@ public class Epic extends Task {
                 ", subTasksCount=" + subTasksIds.size() +
                 '}';
     }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
+    }
 }
