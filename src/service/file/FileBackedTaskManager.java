@@ -5,8 +5,8 @@ import service.HistoryManager;
 import service.Managers;
 import service.converter.TaskConverter;
 import service.exeptions.AlreadyExistException;
-import service.exeptions.ManagerSaveException;
-import service.exeptions.NotFoundExeption;
+import service.exeptions.ManagerIOException;
+import service.exeptions.NotFoundException;
 import service.memory.InMemoryTaskManager;
 
 import java.io.BufferedWriter;
@@ -14,6 +14,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -23,6 +25,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private static final int FIELD_STATUS = 3;
     private static final int FIELD_DESCRIPTION = 4;
     private static final int FIELD_EPIC = 5;
+    private static final int FIELD_DURATION = 6;
+    private static final int FIELD_START_TIME = 7;
 
     private final Path file;
 
@@ -35,7 +39,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public void save() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file.toFile()))) {
-            bw.write("id,type,name,status,description,epic");
+            bw.write("id,type,name,status,description,epic,duration,startTime");
             bw.newLine();
             for (Task task : getTasks()) {
                 bw.write(TaskConverter.toString(task));
@@ -50,7 +54,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 bw.newLine();
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка при записи файла " + file, e);
+            throw new ManagerIOException("Ошибка при записи файла " + file, e);
         }
     }
 
@@ -59,7 +63,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             lines = Files.readAllLines(file);
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка при чтении файла " + file, e);
+            throw new ManagerIOException("Ошибка при чтении файла " + file, e);
         }
 
         newTaskId = 0;
@@ -91,15 +95,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             taskType = TaskType.valueOf(fields[FIELD_TYPE]);
         } catch (IllegalArgumentException e) {
-            throw new NotFoundExeption("Не найден тип задачи: " + fields[FIELD_TYPE]);
+            throw new NotFoundException("Не найден тип задачи: " + fields[FIELD_TYPE]);
         }
 
         switch (taskType) {
             case EPIC -> task = new Epic(fields[FIELD_NAME], fields[FIELD_DESCRIPTION]);
-            case SUBTASK ->
-                    task = new SubTask(Integer.parseInt(fields[FIELD_EPIC]), fields[FIELD_NAME], fields[FIELD_DESCRIPTION], TaskStatus.valueOf(fields[FIELD_STATUS]));
-            default ->
-                    task = new Task(fields[FIELD_NAME], fields[FIELD_DESCRIPTION], TaskStatus.valueOf(fields[FIELD_STATUS]));
+            case SUBTASK -> task = new SubTask(Integer.parseInt(fields[FIELD_EPIC]), fields[FIELD_NAME],
+                    fields[FIELD_DESCRIPTION], TaskStatus.valueOf(fields[FIELD_STATUS]),
+                    LocalDateTime.parse(fields[FIELD_START_TIME]),
+                    Duration.ofMinutes(Integer.parseInt(fields[FIELD_DURATION])));
+            default -> task = new Task(fields[FIELD_NAME], fields[FIELD_DESCRIPTION],
+                    TaskStatus.valueOf(fields[FIELD_STATUS]),
+                    LocalDateTime.parse(fields[FIELD_START_TIME]),
+                    Duration.ofMinutes(Integer.parseInt(fields[FIELD_DURATION])));
         }
 
         task.setId(Integer.parseInt(fields[FIELD_ID]));
@@ -112,7 +120,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (saved != null) {
             throw new AlreadyExistException("Задача " + task.getId() + "уже существует");
         }
+        checkTaskTime(task);
         tasks.put(task.getId(), task);
+        if (task.getStartTime() != null) {
+            prioritizedTasks.add(task);
+        }
     }
 
     private void addEpic(Epic epic) {
@@ -129,7 +141,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (saved != null) {
             throw new AlreadyExistException("Подзадача " + subTask.getId() + "уже существует");
         }
+        checkTaskTime(subTask);
         subTasks.put(subTask.getId(), subTask);
+        if (subTask.getStartTime() != null) {
+            prioritizedTasks.add(subTask);
+        }
         addSubTaskToEpic(getEpic(subTask.getEpicId()), subTask);
         updateEpicStatus(getEpic(subTask.getEpicId()));
     }

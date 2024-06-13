@@ -6,8 +6,9 @@ import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.memory.InMemoryHistoryManager;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,7 +23,7 @@ class InMemoryHistoryManagerTest {
     @BeforeEach
     void beforeEach() {
         historyManager = new InMemoryHistoryManager();
-        task = new Task("Task", "Desc", TaskStatus.NEW);
+        task = new Task("Task", "Desc", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task.setId(1);
     }
 
@@ -31,8 +32,8 @@ class InMemoryHistoryManagerTest {
         Epic epic = new Epic("Epic", "Desc");
         epic.setId(2);
 
-        SubTask subTask = new SubTask(2, "SubTask", "Desc", TaskStatus.NEW);
-
+        SubTask subTask = new SubTask(2, "SubTask", "Desc", TaskStatus.NEW,
+                LocalDateTime.now(), Duration.ofMinutes(15));
 
         subTask.setId(3);
 
@@ -60,9 +61,9 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldKeepTaskOrder() {
-        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW);
+        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task2.setId(2);
-        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW);
+        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task3.setId(3);
 
         historyManager.add(task3);
@@ -78,9 +79,9 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldRemoveTaskFromBegin() {
-        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW);
+        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task2.setId(2);
-        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW);
+        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task3.setId(3);
 
         historyManager.add(task3);
@@ -98,9 +99,9 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldRemoveTaskFromEnd() {
-        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW);
+        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task2.setId(2);
-        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW);
+        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task3.setId(3);
 
         historyManager.add(task3);
@@ -118,9 +119,9 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldRemoveTaskFromMiddle() {
-        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW);
+        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task2.setId(2);
-        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW);
+        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(15));
         task3.setId(3);
 
         historyManager.add(task3);
