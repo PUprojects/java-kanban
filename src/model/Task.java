@@ -1,5 +1,7 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -7,11 +9,27 @@ public class Task {
     protected String name;
     protected String description;
     protected TaskStatus taskStatus;
+    protected Duration duration;
+    protected LocalDateTime startTime;
+    protected LocalDateTime endTime;
 
-    public Task(String name, String description, TaskStatus taskStatus) {
+    public Task(String name, String description, TaskStatus taskStatus, LocalDateTime startTime, Duration duration) {
         this.name = name;
         this.description = description;
         this.taskStatus = taskStatus;
+        this.startTime = startTime;
+        this.duration = duration;
+        this.endTime = this.startTime.plus(this.duration);
+    }
+
+    public Task(Task task) {
+        this.id = task.id;
+        this.name = task.name;
+        this.description = task.description;
+        this.taskStatus = task.taskStatus;
+        this.startTime = task.startTime;
+        this.duration = task.duration;
+        this.endTime = task.endTime;
     }
 
     @Override
@@ -29,12 +47,15 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "SubTask{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", taskStatus=" + taskStatus +
-                '}';
+                ", epicId=" + getEpicId() +
+                ", duration=" + duration.toMinutes() +
+                ", startTime=" + startTime +
+                "}";
     }
 
     public int getId() {
@@ -79,6 +100,34 @@ public class Task {
 
     public boolean compareAllFields(Task task) {
         return (id == task.id) && (name.equals(task.name)) && (description.equals(task.description)) &&
-                (taskStatus == task.taskStatus) && (getType() == task.getType());
+                (taskStatus == task.taskStatus) && (getType() == task.getType()) &&
+                duration.equals(task.getDuration()) && startTime.equals(task.getStartTime()) &&
+                endTime.equals(task.getEndTime());
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+        this.endTime = this.startTime.plus(this.duration);
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+        this.endTime = this.startTime.plus(this.duration);
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public boolean isCrossed(Task task) {
+        return (startTime.isBefore(task.getEndTime()) && endTime.isAfter(task.getStartTime()));
     }
 }

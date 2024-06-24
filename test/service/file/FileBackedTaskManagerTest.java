@@ -5,20 +5,30 @@ import model.SubTask;
 import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FileBackedTaskManagerTest {
+import service.TaskManagerTest;
+
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     Path temFile;
 
-    @BeforeEach
+    @Override
+    protected FileBackedTaskManager createManager() {
+        createTempFile();
+        return FileBackedTaskManager.loadFromFile(temFile);
+    }
+
+
     void createTempFile() {
         try {
             temFile = Files.createTempFile("tasks", ".tmp");
@@ -38,25 +48,22 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void shouldCreateFileBackedTaskManagerFromEmptyFile() {
-        final FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(temFile);
-
-        assertNotNull(manager, "Должен быть создан менеджер задач с сохранением в файл");
-        assertEquals(0, manager.getTasks().size(), "Список задач должен быть пуст");
-        assertEquals(0, manager.getEpics().size(), "Список эпиков должен быть пуст");
-        assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
+        assertNotNull(taskManager, "Должен быть создан менеджер задач с сохранением в файл");
+        assertEquals(0, taskManager.getTasks().size(), "Список задач должен быть пуст");
+        assertEquals(0, taskManager.getEpics().size(), "Список эпиков должен быть пуст");
+        assertEquals(0, taskManager.getSubtasks().size(), "Список подзадач должен быть пуст");
     }
 
+    @DisplayName("менеджер с файлом должен сохранять и восстанавливать состояние из пустого файла")
     @Test
     void shouldSaveAndRestoreWithoutTasks() {
-        final FileBackedTaskManager manager1 = FileBackedTaskManager.loadFromFile(temFile);
-
-        assertNotNull(manager1, "Должен быть создан менеджер задач с сохранением в файл");
-        manager1.save();
+        assertNotNull(taskManager, "Должен быть создан менеджер задач с сохранением в файл");
+        taskManager.save();
 
         try {
             List<String> lines = Files.readAllLines(temFile);
             assertEquals(1, lines.size(), "В файле должна быть одна строка");
-            assertEquals("id,type,name,status,description,epic", lines.get(0), "Первая строка должна содержать заголовок");
+            assertEquals("id,type,name,status,description,epic,duration,startTime", lines.get(0), "Первая строка должна содержать заголовок");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -71,14 +78,14 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void shouldSaveAndRestoreTasks() {
-        final FileBackedTaskManager manager1 = FileBackedTaskManager.loadFromFile(temFile);
-
-        final Task task = new Task("Task1", "Desc task 1", TaskStatus.IN_PROGRESS);
-        manager1.create(task);
+        final Task task = new Task("Task1", "Desc task 1", TaskStatus.IN_PROGRESS, LocalDateTime.now(),
+                Duration.ofMinutes(37));
+        taskManager.create(task);
         final Epic epic = new Epic("Epic1", "Desc epic 1");
-        manager1.createEpic(epic);
-        final SubTask subTask = new SubTask(epic.getId(), "Sub1", "Desc subtask 1", TaskStatus.DONE);
-        manager1.createSubTask(subTask);
+        taskManager.createEpic(epic);
+        final SubTask subTask = new SubTask(epic.getId(), "Sub1", "Desc subtask 1", TaskStatus.DONE,
+                LocalDateTime.now().plusHours(1), Duration.ofMinutes(15));
+        taskManager.createSubTask(subTask);
 
         final FileBackedTaskManager manager2 = FileBackedTaskManager.loadFromFile(temFile);
         assertNotNull(manager2, "Должен быть создан менеджер задач с сохранением в файл из файла с данными");
@@ -93,5 +100,4 @@ public class FileBackedTaskManagerTest {
         final SubTask subTask2 = manager2.getSubTask(subTask.getId());
         assertTrue(subTask2.compareAllFields(subTask), "Поля загруженной и сохранённой подзадачи должны быть идентичны");
     }
-
 }
