@@ -6,7 +6,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-abstract public class BaseHttpHandler implements HttpHandler {
+public abstract class BaseHttpHandler implements HttpHandler {
     protected String readText(HttpExchange httpExchange) throws IOException {
         return new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
     }
