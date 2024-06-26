@@ -172,6 +172,8 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic deleteEpic(int id) {
         Epic epic = epics.remove(id);
         historyManager.remove(id);
+        if (epic == null)
+            return null;
         for (Integer subTaskId : epic.getSubTasksIds()) {
             subTasks.remove(subTaskId);
             historyManager.remove(subTaskId);
@@ -183,9 +185,11 @@ public class InMemoryTaskManager implements TaskManager {
     public SubTask deleteSubTask(int id) {
         SubTask subTask = subTasks.remove(id);
         prioritizedTasks.remove(subTask);
+        historyManager.remove(id);
+        if (subTask == null)
+            return null;
         removeSubTaskFromEpic(getEpic(subTask.getEpicId()), subTask.getId());
         updateEpicStatus(getEpic(subTask.getEpicId()));
-        historyManager.remove(id);
         return subTask;
     }
 
@@ -206,14 +210,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public TreeSet<Task> getPrioritizedTasks() {
-        return new TreeSet<>(prioritizedTasks);
+        TreeSet<Task> result = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+        result.addAll(prioritizedTasks);
+        return result;
     }
 
     @Override
     public List<SubTask> getEpicSubtasks(int id) {
         Epic epic = epics.get(id);
-        if (epic == null)
-            return null;
+        if (epic == null) {
+            throw new NotFoundException("Не найден эпик " + id);
+        }
 
         return epic.getSubTasksIds().stream()
                 .map(subTasks::get)
@@ -271,7 +278,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void updateEpicWithSubtasks(Epic epic, List<Integer> subTasksIds) {
         LocalDateTime minStartTime = LocalDateTime.MAX;
-        LocalDateTime maxEndTime = LocalDateTime.MIN;
+        LocalDateTime maxEndTime = LocalDateTime.MIN.plusYears(1);
         long duration = 0;
         TaskStatus currentSubTaskStatus = null;
         boolean isAllSame = true;
