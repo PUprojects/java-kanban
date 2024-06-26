@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
-    protected int id;
+    protected Integer id;
     protected String name;
     protected String description;
     protected TaskStatus taskStatus;
@@ -14,6 +14,17 @@ public class Task {
     protected LocalDateTime endTime;
 
     public Task(String name, String description, TaskStatus taskStatus, LocalDateTime startTime, Duration duration) {
+        this.id = null;
+        this.name = name;
+        this.description = description;
+        this.taskStatus = taskStatus;
+        this.startTime = startTime;
+        this.duration = duration;
+        this.endTime = this.startTime.plus(this.duration);
+    }
+
+    public Task(Integer id, String name, String description, TaskStatus taskStatus, LocalDateTime startTime, Duration duration) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.taskStatus = taskStatus;
@@ -37,7 +48,7 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id;
+        return Objects.equals(id, task.id);
     }
 
     @Override
@@ -58,11 +69,11 @@ public class Task {
                 "}";
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -99,7 +110,7 @@ public class Task {
     }
 
     public boolean compareAllFields(Task task) {
-        return (id == task.id) && (name.equals(task.name)) && (description.equals(task.description)) &&
+        return (Objects.equals(id, task.id)) && (name.equals(task.name)) && (description.equals(task.description)) &&
                 (taskStatus == task.taskStatus) && (getType() == task.getType()) &&
                 duration.equals(task.getDuration()) && startTime.equals(task.getStartTime()) &&
                 endTime.equals(task.getEndTime());
