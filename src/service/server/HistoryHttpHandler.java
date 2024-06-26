@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import service.TaskManager;
 
-import java.io.IOException;
-
 public class HistoryHttpHandler extends BaseHttpHandler {
     private final TaskManager taskManager;
     private final Gson gson;
